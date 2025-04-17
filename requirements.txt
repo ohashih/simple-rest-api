@@ -1,6 +1,8 @@
-fastapi==0.110.00
-pydantic==2.11.2
-uvicorn[standard]==0.29.0
-alembic==1.15.2
-pydantic-settings
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
 psycopg2-binary
+alembic
+pydantic
+python-dotenv
