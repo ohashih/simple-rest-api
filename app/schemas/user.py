@@ -1,13 +1,20 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserCreate(BaseModel):
-    name: str
-    email: str
+    name: str = Field(
+        ...,
+        min_length=3,
+        max_length=20,
+        description="The length of the name field must be more than 3 characters and less than or equal to 20 characters.",
+    )
+    email: EmailStr = Field(..., description="Must be correct Email format.")
 
 
-class UserRead(UserCreate):
+class User(BaseModel):
     id: int
+    name: str
+    email: EmailStr
 
     class Config:
-        orm_mode = True
+        from_attributes = True
