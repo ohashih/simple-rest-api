@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, status, Depends, Response
+from fastapi import FastAPI, Request, status, Depends, Response, HTTPException
 from sqlalchemy.orm import Session
 
 from typing import List
@@ -6,7 +6,7 @@ from typing import List
 from app.core.database import get_db, engine
 from app.crud import user as user_crud
 from app.models.user import Base
-from app.schemas.user import User, UserCreate
+from app.schemas.user import User, UserCreate, UserUpdate
 from app.schemas.response import APIResponse
 
 app = FastAPI()
@@ -58,7 +58,6 @@ def create_user(
     "/api/users/{user_id}",
     response_model=APIResponse[User],
     status_code=status.HTTP_200_OK,
-    name="get_user_by_id",
 )
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     user = user_crud.get_user_by_id(db, user_id)
@@ -74,3 +73,43 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
             "message": "user retrieved successfully",
         },
     }
+
+
+@app.put(
+    "/api/users/{user_id}",
+    response_model=APIResponse[User],
+    status_code=status.HTTP_200_OK,
+)
+def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db)) -> User:
+    db_user = user_crud.get_user_by_id(db, user_id)
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    user_crud.update_user(db, db_user, user)
+    return {
+        "data": db_user,
+        "meta": {
+            "status": status.HTTP_200_OK,
+            "message": "User update successfully",
+        },
+    }
+
+
+@app.delete(
+    "/api/users/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+):
+    db_user = user_crud.get_user_by_id(db, user_id)
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    user_crud.delete_user(db, db_user)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
