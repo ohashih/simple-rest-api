@@ -10,7 +10,7 @@
 1. Set up GitHub repository
 
 ```shell
-git clone https://github.com/ohashih/simple-rest-api.git && \
+git clone git@github.com:ohashih/simple-rest-api.git && \
     cd simple-rest-api
 ```
 
